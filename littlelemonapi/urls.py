@@ -2,7 +2,7 @@ from rest_framework import routers
 from django.urls import path
 from . import views
 
-router = routers.SimpleRouter()
+router = routers.DefaultRouter()
 router.register('menu-items', views.MenuItemsViewSet)
 router.register('cart', views.CartViewSet)
 
