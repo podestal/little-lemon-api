@@ -9,6 +9,7 @@ djangorestframework = "*"
 mysqlclient = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 

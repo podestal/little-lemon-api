@@ -14,5 +14,13 @@ class MenuItemsViewSet(ModelViewSet):
 
 class CartViewSet(ModelViewSet):
     queryset = models.Cart.objects.all()
-    serializer_class = serializers.CartSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.AddMenuItemSerializer
+        return serializers.CartSerializer
+
+    def get_serializer_context(self):
+
+        return {'user_id': self.request.user.id, 'cart_id': self.kwargs.get('pk') }
 
