@@ -1,21 +1,28 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from . import serializers
 from . import models
 from . import permissions
 
 class MenuItemsViewSet(ModelViewSet):
     queryset = models.MenuItem.objects.all()
-    serializer_class = serializers.MenuItemSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
+
+    def get_serializer_class(self):
+        print(self.kwargs)
+        if self.request.path == '/api/cart/1/menu-items/':
+            return serializers.CartMenuItemSerializer
+        return serializers.MenuItemSerializer
+    
 
 
 class CartViewSet(ModelViewSet):
 
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
-        print(self.request.user.id)
         return models.Cart.objects.filter(user = self.request.user.id).select_related('menuitem')
 
     def get_serializer_class(self):
