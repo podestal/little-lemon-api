@@ -39,6 +39,12 @@ class CartSerializer(serializers.ModelSerializer):
         item = models.MenuItem.objects.get(id = cart_item.menuitem_id)
         return item.price * cart_item.quantity
     
+class CreateCartSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Cart
+        fields = ['id']
+    
     
     
 class AddMenuItemSerializer(serializers.ModelSerializer):

@@ -27,7 +27,7 @@ class CartViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.AddMenuItemSerializer
+            return serializers.CreateCartSerializer
         return serializers.CartSerializer
 
     def get_serializer_context(self):
