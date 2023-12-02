@@ -25,6 +25,11 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Cart
         fields = ['id']
+
+    def save(self, **kwargs):
+        user_id = self.context['user_id']
+        self.instance = models.Cart.objects.create(user_id = user_id, **self.validated_data)
+        return self.instance
     
 class CreateCartSerializer(serializers.ModelSerializer):
 

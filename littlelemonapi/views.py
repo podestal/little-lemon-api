@@ -24,6 +24,9 @@ class CartViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.CartSerializer
 
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
+
     # def get_queryset(self):
     #     return models.Cart.objects.filter(user = self.request.user.id).select_related('menuitem')
 
