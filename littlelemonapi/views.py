@@ -38,3 +38,16 @@ class CartViewSet(ModelViewSet):
     # def get_serializer_context(self):
     #     return {'user_id': self.request.user.id, 'cart_id': self.kwargs.get('pk') }
 
+class CartItem(ModelViewSet):
+    queryset = models.CartItem.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        return {'cart_id': self.kwargs['cart_pk']}
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateCartItemSerializer
+        return serializers.CartItemSerializer
+
+

@@ -31,19 +31,24 @@ class CartSerializer(serializers.ModelSerializer):
         self.instance = models.Cart.objects.create(user_id = user_id, **self.validated_data)
         return self.instance
     
-class CreateCartSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Cart
-        fields = ['id']
 
 class CartItemSerializer(serializers.ModelSerializer):
 
+    menuitem = MenuItemSerializer()
     class Meta:
         model = models.CartItem
-        fields = '__all__'
+        fields = ['id', 'quantity', 'menuitem']
+
+class CreateCartItemSerializer(serializers.ModelSerializer):
     
-    
+    class Meta:
+        model = models.CartItem
+        fields = ['menuitem', 'quantity']
+
+    def save(self, **kwargs):
+        cart_id = self.context['cart_id']
+        self.instance = models.CartItem.objects.create(cart_id = cart_id, **self.validated_data)
+        return self.instance
     
 class AddMenuItemSerializer(serializers.ModelSerializer):
 
