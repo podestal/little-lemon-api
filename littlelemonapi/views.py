@@ -7,7 +7,7 @@ from . import models
 from . import permissions
 
 class MenuItemsViewSet(ModelViewSet):
-    queryset = models.MenuItem.objects.all()
+    queryset = models.MenuItem.objects.select_related('category').all()
     serializer_class = serializers.MenuItemSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
 
