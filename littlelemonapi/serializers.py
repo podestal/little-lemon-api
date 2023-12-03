@@ -95,7 +95,19 @@ class CreateOrderSerializer(serializers.Serializer):
         user_id = self.context['user_id']
         cart_id = self.validated_data['cart_id']
         delivery_crew_id = self.validated_data['delivery_crew_id']
-        self.instance = models.Order.objects.create(user_id = user_id,  **self.validated_data)
+        order =  models.Order.objects.create(user_id = user_id,  delivery_crew_id = delivery_crew_id)
+        order_items = [models.OrderItem(
+            order = order,
+            menuitem = item.menuitem,
+            quantity = item.quantity,
+            unit_price = item.menuitem.unit_price
+
+        ) for item in models.CartItem.objects.filter(cart=cart_id)]
+
+        models.OrderItem.objects.bulk_create(order_items)
+        models.Cart.objects.filter(pk=cart_id).delete()
+
+        return order
         
 
 class GroupSerializer(serializers.ModelSerializer):
