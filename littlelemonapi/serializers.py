@@ -1,4 +1,5 @@
 from . import models
+from core.models import User
 from rest_framework import serializers
 from django.contrib.auth.models import Group
 
@@ -77,8 +78,14 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GroupSerizlizer(serializers.ModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
         fields = '__all__'
+
+class AssignUserToGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Group
+        fields = ['name']
