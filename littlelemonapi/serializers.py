@@ -109,6 +109,11 @@ class CreateOrderSerializer(serializers.Serializer):
 
         return order
         
+class OrderItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.OrderItem
+        fields = '__all__'
 
 class GroupSerializer(serializers.ModelSerializer):
 

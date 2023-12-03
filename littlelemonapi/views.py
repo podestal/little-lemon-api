@@ -75,6 +75,11 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
 
+class OrderItemViewSet(ModelViewSet):
+    queryset = models.OrderItem.objects.all()
+    serializer_class = serializers.OrderItemSerializer
+    permission_classes = [IsAuthenticated]
+
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
