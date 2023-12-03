@@ -1,5 +1,6 @@
 from . import models
 from rest_framework import serializers
+from django.contrib.auth.models import Group
 
 class CategorySerializer(serializers.ModelSerializer):
 
@@ -69,15 +70,15 @@ class AddMenuItemSerializer(serializers.ModelSerializer):
         model = models.Cart
         fields = ['menuitem_id', 'quantity', 'price']
 
-    # def save(self, **kwargs):
-    #     cart_id = self.context['cart_id']
-    #     menu_item_id = self.validated_data['menuitem_id']
-    #     quantity = self.validated_data['quantity']
+class OrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Order
+        fields = '__all__'
 
 
+class GroupSerizlizer(serializers.ModelSerializer):
 
-
-    
-    
-
-
+    class Meta:
+        model = Group
+        fields = '__all__'

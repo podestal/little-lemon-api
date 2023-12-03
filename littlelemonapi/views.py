@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from django.conf import settings
+from django.contrib.auth.models import Group
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
 from . import serializers
 from . import models
 from . import permissions
@@ -38,7 +40,7 @@ class CartViewSet(ModelViewSet):
     # def get_serializer_context(self):
     #     return {'user_id': self.request.user.id, 'cart_id': self.kwargs.get('pk') }
 
-class CartItem(ModelViewSet):
+class CartItemViewSet(ModelViewSet):
     queryset = models.CartItem.objects.all()
     permission_classes = [IsAuthenticated]
 
@@ -49,5 +51,17 @@ class CartItem(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateCartItemSerializer
         return serializers.CartItemSerializer
+    
+class OrderViewSet(ModelViewSet):
+    queryset = models.Order.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.OrderSerializer
 
+class GroupViewSet(ModelViewSet):
+    queryset = Group.objects.all()
+    permission_classes = [IsAdminUser]
 
+    def get_serializer_class(self):
+        admin = Group.objects.get(name='Admin')
+        # print(admin.user_get())
+        return serializers.GroupSerizlizer
