@@ -15,6 +15,7 @@ carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')
 groups_router = routers.NestedDefaultRouter(router, 'users', lookup='users')
 groups_router.register('groups', views.GroupViewSet)
 
+
 # urlpatterns = [
     # path('menu-items/', views.MenuItemsViewSet.as_view())
 #     path('products/', views.ProductList.as_view()),

@@ -26,9 +26,16 @@ class MenuItemsViewSet(ModelViewSet):
 
 class CartViewSet(ModelViewSet):
 
-    queryset = models.Cart.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.CartSerializer
+
+    def get_queryset(self):
+        return models.Cart.objects.filter(user_id=self.request.user.id)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateCartSerializer
+        return serializers.CartSerializer
 
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
@@ -91,8 +98,6 @@ class GroupViewSet(ModelViewSet):
             return serializers.AssignUserToGroupSerializer
         return serializers.GroupSerializer
     
-    def get_serializer_context(self):
-        return {'user_id': self.kwargs['users_pk']}
 
     
     

@@ -19,9 +19,11 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 class SimpleMenuItemSerializer(serializers.ModelSerializer):
 
+    category = CategorySerializer()
+
     class Meta:
         model = models.MenuItem
-        fields = ['title', 'unit_price']
+        fields = ['title', 'unit_price', 'category']
     
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -54,14 +56,21 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Cart
         fields = ['id', 'cart_items', 'total_price']
+    
+    def get_total_price(self, cart:models.Cart):
+        return sum(cartitem.menuitem.unit_price * cartitem.quantity for cartitem in cart.cart_items.all())
+    
+class CreateCartSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Cart
+        fields = ['id']
 
     def save(self, **kwargs):
         user_id = self.context['user_id']
         self.instance = models.Cart.objects.create(user_id = user_id, **self.validated_data)
         return self.instance
-    
-    def get_total_price(self, cart:models.Cart):
-        return sum(cartitem.menuitem.unit_price * cartitem.quantity for cartitem in cart.cart_items.all())
+
     
 class AddMenuItemSerializer(serializers.ModelSerializer):
 
