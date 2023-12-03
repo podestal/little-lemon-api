@@ -86,6 +86,17 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = '__all__'
 
+class CreateOrderSerializer(serializers.Serializer):
+
+    cart_id = serializers.IntegerField()
+    delivery_crew_id = serializers.IntegerField()
+
+    def save(self, **kwargs):
+        user_id = self.context['user_id']
+        cart_id = self.validated_data['cart_id']
+        delivery_crew_id = self.validated_data['delivery_crew_id']
+        self.instance = models.Order.objects.create(user_id = user_id,  **self.validated_data)
+        
 
 class GroupSerializer(serializers.ModelSerializer):
 

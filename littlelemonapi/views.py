@@ -66,7 +66,14 @@ class CartItemViewSet(ModelViewSet):
 class OrderViewSet(ModelViewSet):
     queryset = models.Order.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.OrderSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateOrderSerializer
+        return serializers.OrderSerializer
+    
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -76,14 +83,6 @@ class UserViewSet(ModelViewSet):
 class GroupViewSet(ModelViewSet):
 
     queryset = Group.objects.all()
-
-    # def save(self, **kwargs):
-    # group_name = self.validated_data['name']
-    # user_id = self.context['user_id']
-    # user = User.objects.get(User, user_id=user_id)
-    # group = Group.objects.get(name=group_name)
-    # group.user_set.add(user)
-    # print('user added')
 
     def create(self, request, *args, **kwargs):
         user_id = self.kwargs['users_pk']

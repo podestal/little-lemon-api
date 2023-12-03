@@ -28,7 +28,7 @@ class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     delivery_crew = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='delivery_crew', null=True)
     status = models.BooleanField(db_index=True, default=0)
-    date = models.DateField(db_index=True)
+    date = models.DateField(db_index=True, auto_now=True)
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
