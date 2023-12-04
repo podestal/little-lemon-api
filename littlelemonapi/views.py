@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from . import serializers
 from . import models
 from . import permissions
@@ -16,18 +17,13 @@ class MenuItemsViewSet(ModelViewSet):
     queryset = models.MenuItem.objects.select_related('category').all()
     serializer_class = serializers.MenuItemSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
-
-    # def get_serializer_class(self):
-    #     if self.request.path == 'POST':
-    #         return serializers.AddMenuItemSerializer
-    #     return serializers.MenuItemSerializer
-    
-
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
 class CartViewSet(ModelViewSet):
 
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.CartSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get_queryset(self):
         return models.Cart.objects.filter(user_id=self.request.user.id)
@@ -40,20 +36,10 @@ class CartViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
 
-    # def get_queryset(self):
-    #     return models.Cart.objects.filter(user = self.request.user.id).select_related('menuitem')
-
-    # def get_serializer_class(self):
-    #     if self.request.method == 'POST':
-    #         return serializers.CreateCartSerializer
-    #     return serializers.CartSerializer
-
-    # def get_serializer_context(self):
-    #     return {'user_id': self.request.user.id, 'cart_id': self.kwargs.get('pk') }
-
 class CartItemViewSet(ModelViewSet):
     queryset = models.CartItem.objects.all()
     permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
     def get_queryset(self):
         return models.CartItem.objects.filter(cart_id = self.kwargs['cart_pk'])
@@ -68,6 +54,7 @@ class CartItemViewSet(ModelViewSet):
     
 class OrderViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -92,6 +79,7 @@ class OrderItemViewSet(ModelViewSet):
 
     serializer_class = serializers.OrderItemSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
     def get_queryset(self):
         return models.OrderItem.objects.filter(order_id=self.kwargs['orders_pk'])
@@ -99,6 +87,7 @@ class OrderItemViewSet(ModelViewSet):
 class UserViewSet(ModelViewSet):
 
     permission_classes = [permissions.IsAdminOrReadOnlyOrIsAnonymous]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
     def get_queryset(self):
         # groups = []
@@ -141,7 +130,8 @@ class GroupViewSet(ModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = serializers.GroupSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
+    throttle_classes = [UserRateThrottle]
 
     @action(detail=False, methods=['GET', 'PUT', 'PATCH'])
     def manager(self, request):
@@ -154,7 +144,6 @@ class GroupViewSet(ModelViewSet):
         return Response('Devilvery Crew')
     
     @api_view(['GET', 'PATCH', 'DELETE'])
-    @permission_classes([IsAdminUser])
     def manager(request):
         group = Group.objects.get(name='manager')
         print(request.user.is_superuser)
@@ -176,7 +165,6 @@ class GroupViewSet(ModelViewSet):
 
 
     @api_view(['GET', 'PATCH', 'DELETE'])
-    @permission_classes([IsAdminUser])
     def delivery_crew(request):
         group = Group.objects.get(name='delivery crew')
         print(request.user.is_superuser)
@@ -194,20 +182,6 @@ class GroupViewSet(ModelViewSet):
             group.user_set.remove(user)
             return Response(f'User removed from {group} group')
     
-
-
-    # def create(self, request, *args, **kwargs):
-    #     user_id = self.kwargs['users_pk']
-    #     group_name = request.data['name']
-    #     user = User.objects.get(id=user_id)
-    #     group = Group.objects.get(name=group_name)
-    #     group.user_set.add(user)
-    #     return Response(f'{user} added to group {group_name}')
-
-    # def get_serializer_class(self):
-    #     if self.request.method == 'POST':
-    #         return serializers.AssignUserToGroupSerializer
-    #     return serializers.GroupSerializer
     
 
     
