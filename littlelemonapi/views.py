@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.conf import settings
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth.models import Group
+from rest_framework.filters import OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes, action, api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -18,6 +20,9 @@ class MenuItemsViewSet(ModelViewSet):
     serializer_class = serializers.MenuItemSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['title', 'unit_price']
+    pagination_class = PageNumberPagination
 
 class CartViewSet(ModelViewSet):
 
@@ -55,6 +60,8 @@ class CartItemViewSet(ModelViewSet):
 class OrderViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
+    pagination_class = PageNumberPagination
+    
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -80,6 +87,8 @@ class OrderItemViewSet(ModelViewSet):
     serializer_class = serializers.OrderItemSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['status', 'date']
 
     def get_queryset(self):
         return models.OrderItem.objects.filter(order_id=self.kwargs['orders_pk'])
