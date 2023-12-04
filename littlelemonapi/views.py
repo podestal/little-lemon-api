@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth.models import Group
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -55,6 +55,9 @@ class CartItemViewSet(ModelViewSet):
     queryset = models.CartItem.objects.all()
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return models.CartItem.objects.filter(cart_id = self.kwargs['cart_pk'])
+
     def get_serializer_context(self):
         return {'cart_id': self.kwargs['cart_pk']}
 
@@ -67,6 +70,15 @@ class OrderViewSet(ModelViewSet):
     queryset = models.Order.objects.all()
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            if self.request.query_params.get('status') == 'pending':
+                return models.Order.objects.filter(status=False)
+            elif self.request.query_params.get('status') == 'delivered':
+                return models.Order.objects.filter(status=True)
+            return models.Order.objects.all()
+        return models.Order.objects.filter(user_id = self.request.user.id)
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateOrderSerializer
@@ -76,14 +88,21 @@ class OrderViewSet(ModelViewSet):
         return {'user_id': self.request.user.id}
 
 class OrderItemViewSet(ModelViewSet):
-    queryset = models.OrderItem.objects.all()
+
     serializer_class = serializers.OrderItemSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return models.OrderItem.objects.filter(order_id=self.kwargs['orders_pk'])
+
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return UserCreateSerializer
+        return UserSerializer
 
 class GroupViewSet(ModelViewSet):
 

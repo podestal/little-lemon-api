@@ -13,7 +13,7 @@ carts_router = routers.NestedDefaultRouter(router, 'cart', lookup='cart')
 carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')
 
 orders_router = routers.NestedDefaultRouter(router, 'orders', lookup='orders')
-orders_router.register('orderitems', views.OrderItemViewSet)
+orders_router.register('orderitems', views.OrderItemViewSet, basename='order-items')
 
 groups_router = routers.NestedDefaultRouter(router, 'users', lookup='users')
 groups_router.register('groups', views.GroupViewSet)

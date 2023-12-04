@@ -80,12 +80,6 @@ class AddMenuItemSerializer(serializers.ModelSerializer):
         model = models.Cart
         fields = ['menuitem_id', 'quantity', 'price']
 
-class OrderSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.Order
-        fields = '__all__'
-
 class CreateOrderSerializer(serializers.Serializer):
 
     cart_id = serializers.IntegerField()
@@ -114,6 +108,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderItem
         fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    order_items = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = models.Order
+        fields = ['id', 'status', 'date', 'delivery_crew', 'user', 'order_items']
 
 class GroupSerializer(serializers.ModelSerializer):
 
