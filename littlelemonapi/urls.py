@@ -16,16 +16,15 @@ carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')
 orders_router = routers.NestedDefaultRouter(router, 'orders', lookup='orders')
 orders_router.register('orderitems', views.OrderItemViewSet, basename='order-items')
 
-groups_router = routers.NestedDefaultRouter(router, 'groups', lookup='groups')
-groups_router.register('users', views.UserViewSet, basename='users')
 
-
-# urlpatterns = [
+urlpatterns = [
+    path('groups/manager/users/', views.GroupViewSet.manager),
+    path('groups/delivery-crew/users/', views.GroupViewSet.delivery_crew),
     # path('menu-items/', views.MenuItemsViewSet.as_view())
-#     path('products/', views.ProductList.as_view()),
-#     path('products/<int:pk>', views.ProductDetail.as_view()),
-#     path('collections/', views.CollectionList.as_view()),
-#     path('collections/<int:pk>', views.CollectionDetail.as_view())
-# ]
+    # path('products/', views.ProductList.as_view()),
+    # path('products/<int:pk>', views.ProductDetail.as_view()),
+    # path('collections/', views.CollectionList.as_view()),
+    # path('collections/<int:pk>', views.CollectionDetail.as_view())
+]
 
-urlpatterns = router.urls + carts_router.urls + orders_router.urls + groups_router.urls
+urlpatterns += router.urls + carts_router.urls + orders_router.urls

@@ -130,6 +130,13 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = '__all__'
 
+class UserGroupSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(max_length=255)
+
+    class Meta:
+        model = Group
+        fields = ['group_name']
+
 class GroupNameSerializer(serializers.Serializer):
     neme = serializers.CharField
 

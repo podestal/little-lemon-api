@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.conf import settings
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth.models import Group
-from rest_framework.decorators import permission_classes, action
+from rest_framework.decorators import permission_classes, action, api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
@@ -105,7 +105,15 @@ class UserViewSet(ModelViewSet):
         # for group in self.request.user.groups.all():
         #     groups.append(group.name)
         # print(groups)
+        # print(len(self.request.META['PATH_INFO'].split('/')))
+        # group = Group.objects.get(name=self.request.META['PATH_INFO'].split('/')[-3])
+        # print(group)
         if self.request.user.is_superuser:
+            # print(self.request.META['PATH_INFO'].split('/')[3])
+            # if len(self.request.META['PATH_INFO'].split('/')) > 5:
+            #     group_name = self.request.META['PATH_INFO'].split('/')[3]
+            #     group = Group.objects.get(name=group_name)
+            #     return User.objects.filter(groups=group.id)
             return User.objects.all()
 
     def get_serializer_class(self):
@@ -114,22 +122,79 @@ class UserViewSet(ModelViewSet):
         return UserSerializer
 
     
-    @action(detail=False)
+    @action(detail=False, methods=['GET', 'PUT'])
     def me(self, request):
-        print(self.request.user.id)
         user = User.objects.get(id = self.request.user.id)
         serializer = UserSerializer(user)
         return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        print('kwargs', self.kwargs)
+        user = request.data['username']
+        print(user)
+        group = Group.objects.get(id = self.kwargs['groups_pk'])
+        if request.method == 'PUT':
+            group.user_set.add(user)
+        return Response('Group Updated')
 
 class GroupViewSet(ModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = serializers.GroupSerializer
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
 
-    @action(detail=False)
+    @action(detail=False, methods=['GET', 'PUT', 'PATCH'])
     def manager(self, request):
-        return Response('Manager site')
+        return Response('Managers')
+    
+    @action(detail=False, methods=['GET', 'PUT', 'PATCH'])
+    def delivery_crew(self, request):
+        if request.method == 'PUT':
+            return Response('posted')
+        return Response('Devilvery Crew')
+    
+    @api_view(['GET', 'PATCH', 'DELETE'])
+    @permission_classes([IsAdminUser])
+    def manager(request):
+        group = Group.objects.get(name='manager')
+        print(request.user.is_superuser)
+        if request.method == 'GET':
+            print(request.data)
+            users = User.objects.filter(groups=group.id)
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        elif request.method == 'PATCH':
+            user = User.objects.get(username = request.data['username'])
+            group.user_set.add(user)
+            return Response(f'User added to {group} group')
+        elif request.method == 'DELETE':
+            user = User.objects.get(username = request.data['username'])
+            group.user_set.remove(user)
+            return Response(f'User removed from {group} group')
+            
+            
+
+
+    @api_view(['GET', 'PATCH', 'DELETE'])
+    @permission_classes([IsAdminUser])
+    def delivery_crew(request):
+        group = Group.objects.get(name='delivery crew')
+        print(request.user.is_superuser)
+        if request.method == 'GET':
+            print(request.data)
+            users = User.objects.filter(groups=group.id)
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        elif request.method == 'PATCH':
+            user = User.objects.get(username = request.data['username'])
+            group.user_set.add(user)
+            return Response(f'User add to {group} group')
+        elif request.method == 'DELETE':
+            user = User.objects.get(username = request.data['username'])
+            group.user_set.remove(user)
+            return Response(f'User removed from {group} group')
+    
+
 
     # def create(self, request, *args, **kwargs):
     #     user_id = self.kwargs['users_pk']
