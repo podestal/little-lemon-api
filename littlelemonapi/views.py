@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.conf import settings
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth.models import Group
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import permission_classes, action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
@@ -67,11 +67,10 @@ class CartItemViewSet(ModelViewSet):
         return serializers.CartItemSerializer
     
 class OrderViewSet(ModelViewSet):
-    queryset = models.Order.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
+        if self.request.user.is_staff:
             if self.request.query_params.get('status') == 'pending':
                 return models.Order.objects.filter(status=False)
             elif self.request.query_params.get('status') == 'delivered':
@@ -82,6 +81,8 @@ class OrderViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateOrderSerializer
+        if self.request.method == 'PATCH' or self.request.method == 'PUT' and self.request.user.is_staff and not self.request.user.is_superuser:
+            return serializers.PatchOrderSerializer
         return serializers.OrderSerializer
     
     def get_serializer_context(self):
@@ -96,13 +97,28 @@ class OrderItemViewSet(ModelViewSet):
         return models.OrderItem.objects.filter(order_id=self.kwargs['orders_pk'])
 
 class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    permission_classes = [IsAdminUser]
+
+    permission_classes = [permissions.IsAdminOrReadOnlyOrIsAnonymous]
+
+    def get_queryset(self):
+        # groups = []
+        # for group in self.request.user.groups.all():
+        #     groups.append(group.name)
+        # print(groups)
+        if self.request.user.is_superuser:
+            return User.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return UserCreateSerializer
         return UserSerializer
+    
+    @action(detail=False)
+    def me(self, request):
+        print(self.request.user.id)
+        user = User.objects.get(id = self.request.user.id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 class GroupViewSet(ModelViewSet):
 

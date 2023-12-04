@@ -6,8 +6,8 @@ from . import views
 router = routers.DefaultRouter()
 router.register('menuitems', views.MenuItemsViewSet)
 router.register('cart', views.CartViewSet, basename='cart')
-router.register('orders', views.OrderViewSet)
-router.register('users', views.UserViewSet)
+router.register('orders', views.OrderViewSet, basename='orders')
+router.register('users', views.UserViewSet, basename='users')
 
 carts_router = routers.NestedDefaultRouter(router, 'cart', lookup='cart')
 carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')

@@ -102,6 +102,12 @@ class CreateOrderSerializer(serializers.Serializer):
         models.Cart.objects.filter(pk=cart_id).delete()
 
         return order
+    
+class PatchOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Order
+        fields = ['status']
         
 class OrderItemSerializer(serializers.ModelSerializer):
 
@@ -123,6 +129,9 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+
+class GroupNameSerializer(serializers.Serializer):
+    neme = serializers.CharField
 
 class AssignUserToGroupSerializer(serializers.ModelSerializer):
 
