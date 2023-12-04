@@ -112,6 +112,7 @@ class UserViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return UserCreateSerializer
         return UserSerializer
+
     
     @action(detail=False)
     def me(self, request):
@@ -123,19 +124,25 @@ class UserViewSet(ModelViewSet):
 class GroupViewSet(ModelViewSet):
 
     queryset = Group.objects.all()
+    serializer_class = serializers.GroupSerializer
+    permission_classes = [IsAdminUser]
 
-    def create(self, request, *args, **kwargs):
-        user_id = self.kwargs['users_pk']
-        group_name = request.data['name']
-        user = User.objects.get(id=user_id)
-        group = Group.objects.get(name=group_name)
-        group.user_set.add(user)
-        return Response(f'{user} added to group {group_name}')
+    @action(detail=False)
+    def manager(self, request):
+        return Response('Manager site')
 
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return serializers.AssignUserToGroupSerializer
-        return serializers.GroupSerializer
+    # def create(self, request, *args, **kwargs):
+    #     user_id = self.kwargs['users_pk']
+    #     group_name = request.data['name']
+    #     user = User.objects.get(id=user_id)
+    #     group = Group.objects.get(name=group_name)
+    #     group.user_set.add(user)
+    #     return Response(f'{user} added to group {group_name}')
+
+    # def get_serializer_class(self):
+    #     if self.request.method == 'POST':
+    #         return serializers.AssignUserToGroupSerializer
+    #     return serializers.GroupSerializer
     
 
     

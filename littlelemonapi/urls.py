@@ -8,6 +8,7 @@ router.register('menuitems', views.MenuItemsViewSet)
 router.register('cart', views.CartViewSet, basename='cart')
 router.register('orders', views.OrderViewSet, basename='orders')
 router.register('users', views.UserViewSet, basename='users')
+router.register('groups', views.GroupViewSet)
 
 carts_router = routers.NestedDefaultRouter(router, 'cart', lookup='cart')
 carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')
@@ -15,8 +16,8 @@ carts_router.register('cartitems', views.CartItemViewSet, basename='cart-items')
 orders_router = routers.NestedDefaultRouter(router, 'orders', lookup='orders')
 orders_router.register('orderitems', views.OrderItemViewSet, basename='order-items')
 
-groups_router = routers.NestedDefaultRouter(router, 'users', lookup='users')
-groups_router.register('groups', views.GroupViewSet)
+groups_router = routers.NestedDefaultRouter(router, 'groups', lookup='groups')
+groups_router.register('users', views.UserViewSet, basename='users')
 
 
 # urlpatterns = [
@@ -27,4 +28,4 @@ groups_router.register('groups', views.GroupViewSet)
 #     path('collections/<int:pk>', views.CollectionDetail.as_view())
 # ]
 
-urlpatterns = router.urls + carts_router.urls + groups_router.urls + orders_router.urls
+urlpatterns = router.urls + carts_router.urls + orders_router.urls + groups_router.urls
